@@ -1,6 +1,9 @@
 package com.signify.hue.flutterreactiveble
 
+import android.app.Activity
+import android.bluetooth.BluetoothAdapter
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -19,6 +22,7 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.plugin.common.PluginRegistry.ActivityResultListener
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.UUID
@@ -27,7 +31,7 @@ import java.util.concurrent.locks.ReentrantLock
 import com.signify.hue.flutterreactiveble.ProtobufModel as pb
 
 @Suppress("TooManyFunctions")
-class PluginController {
+class PluginController : ActivityResultListener {
     private val pluginMethods =
         mapOf<String, (call: MethodCall, result: Result) -> Unit>(
             "initialize" to this::initializeClient,
@@ -46,6 +50,7 @@ class PluginController {
             "discoverServices" to this::discoverServices,
             "getDiscoveredServices" to this::discoverServices,
             "readRssi" to this::readRssi,
+            "requestEnableBluetooth" to this::requestEnableBluetooth,
             "_startEventLoop" to this::prepareReadEvents,
             "_readEvents" to this::readEvents,
             "_onListen" to this::onListen,
@@ -59,6 +64,7 @@ class PluginController {
     private lateinit var deviceConnectionHandler: DeviceConnectionHandler
     private lateinit var charNotificationHandler: CharNotificationHandler
     private lateinit var bleStatusHandler: BleStatusHandler
+    var activity:Activity? = null
 
     private val uuidConverter = UuidConverter()
     private val protoConverter = ProtobufMessageConverter()
@@ -67,6 +73,10 @@ class PluginController {
     private val mainLooper = Handler(Looper.getMainLooper())
     private val eventQueueLock = ReentrantLock()
     private var pendingResult: Result? = null
+    private var pendingEnableResult: Result? = null
+
+    private val REQUEST_ENABLE_BLUETOOTH = 1771
+    private val REQUEST_CODE_SCAN_ACTIVITY = 2777
 
     internal fun initialize(
         messenger: BinaryMessenger,
@@ -446,6 +456,42 @@ class PluginController {
     private fun getOsApiVersion(call: MethodCall, result: Result) {
         val osVersion = android.os.Build.VERSION.SDK_INT
         result.success(osVersion)
+    }
+
+    private fun requestEnableBluetooth(call: MethodCall, result: Result) {
+        val activity = this.activity
+        if (activity != null) {
+            assert(pendingEnableResult == null)
+            pendingEnableResult = result
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH)
+        } else {
+            result.success(false)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        val result = pendingEnableResult
+        if (requestCode == REQUEST_ENABLE_BLUETOOTH) {
+            if (result == null) {
+                // Spurious result callback without a prior request (maybe the app was hot restarted?)
+            } else {
+                try {
+                    if (resultCode == Activity.RESULT_OK) {
+                        mainLooper.post {
+                            result.success(true)
+                        }
+                    } else {
+                        mainLooper.post {
+                            result.success(false)
+                        }
+                    }
+                } finally {
+                    pendingEnableResult = null
+                }
+            }
+        }
+        return false
     }
 
     public fun forwardEvent(channelId: Int, data: ByteArray) {

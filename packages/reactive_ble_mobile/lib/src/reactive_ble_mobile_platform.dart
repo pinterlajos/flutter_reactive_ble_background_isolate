@@ -316,6 +316,15 @@ class ReactiveBleMobilePlatform extends ReactiveBlePlatform {
       )
       .then((data) => _protobufConverter.readRssiResultFrom(data!));
 
+  @override
+  Future<bool> requestEnableBluetooth() {
+    _logger?.log('Request enable bluetooth');
+    return _bleMethodChannel
+        .invokeMethod<bool>('requestEnableBluetooth')
+        .then((value) => value ?? false);
+  }
+
+  @override
   Future<int> get osApiVersion => _bleMethodChannel
       .invokeMethod<int>('getOsApiVersion')
       .then((value) => value!);

@@ -434,6 +434,11 @@ class FlutterReactiveBle {
     return chars.single;
   }
 
+  Future<bool> requestEnableBluetooth() async {
+    await initialize();
+    return _blePlatform.requestEnableBluetooth();
+  }
+
   /// Sets the verbosity of debug output.
   ///
   /// Use [LogLevel.verbose] for full debug output. Make sure to  run this only for debugging purposes.

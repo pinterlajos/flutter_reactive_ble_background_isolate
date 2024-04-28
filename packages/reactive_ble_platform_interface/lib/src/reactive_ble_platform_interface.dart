@@ -191,6 +191,10 @@ abstract class ReactiveBlePlatform extends PlatformInterface {
         'requestConnectionPriority has not been implemented.');
   }
 
+  Future<bool> requestEnableBluetooth() {
+    throw UnimplementedError('requestEnableBluetooth has not been implemented.');
+  }
+
   Future<int> get osApiVersion {
     throw UnimplementedError('osApiVersion has not been implemented.');
   }
