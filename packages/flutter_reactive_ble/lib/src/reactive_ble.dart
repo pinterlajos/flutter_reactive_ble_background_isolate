@@ -80,6 +80,8 @@ class FlutterReactiveBle {
 
   Stream<BleStatus> get _statusStream => _blePlatform.bleStatusStream;
 
+  Future<int> get osApiVersion => _blePlatform.osApiVersion;
+
   Future<void> _trackStatus() async {
     await initialize();
     _statusStream.listen((status) => _status = status);
@@ -135,6 +137,9 @@ class FlutterReactiveBle {
       );
 
       await _initialization;
+    } else {
+      // Guard against multiple concurrent calls to initialize
+      return _initialization!;
     }
   }
 

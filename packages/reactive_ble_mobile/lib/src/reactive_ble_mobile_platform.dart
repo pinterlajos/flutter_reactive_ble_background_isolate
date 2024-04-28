@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:reactive_ble_platform_interface/reactive_ble_platform_interface.dart';
 
 import 'converter/args_to_protubuf_converter.dart';
 import 'converter/protobuf_converter.dart';
+import 'polling_event_channel.dart';
 
 class ReactiveBleMobilePlatform extends ReactiveBlePlatform {
   ReactiveBleMobilePlatform({
@@ -312,6 +315,10 @@ class ReactiveBleMobilePlatform extends ReactiveBlePlatform {
             .writeToBuffer(),
       )
       .then((data) => _protobufConverter.readRssiResultFrom(data!));
+
+  Future<int> get osApiVersion => _bleMethodChannel
+      .invokeMethod<int>('getOsApiVersion')
+      .then((value) => value!);
 }
 
 class ReactiveBleMobilePlatformFactory {
@@ -320,11 +327,11 @@ class ReactiveBleMobilePlatformFactory {
   ReactiveBleMobilePlatform create({Logger? logger}) {
     const _bleMethodChannel = MethodChannel("flutter_reactive_ble_method");
 
-    const connectedDeviceChannel =
-        EventChannel("flutter_reactive_ble_connected_device");
-    const charEventChannel = EventChannel("flutter_reactive_ble_char_update");
-    const scanEventChannel = EventChannel("flutter_reactive_ble_scan");
-    const bleStatusChannel = EventChannel("flutter_reactive_ble_status");
+    PollingEventLoop(_bleMethodChannel, logger: logger);
+    const connectedDeviceChannel = PollingEventChannel("flutter_reactive_ble_connected_device", 1);
+    const charEventChannel = PollingEventChannel("flutter_reactive_ble_char_update", 2);
+    const scanEventChannel = PollingEventChannel("flutter_reactive_ble_scan", 3);
+    const bleStatusChannel = PollingEventChannel("flutter_reactive_ble_status", 4);
 
     return ReactiveBleMobilePlatform(
       protobufConverter: const ProtobufConverterImpl(),

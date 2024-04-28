@@ -1,6 +1,9 @@
 package com.signify.hue.flutterreactiveble
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import com.signify.hue.flutterreactiveble.ble.RequestConnectionPriorityFailed
 import com.signify.hue.flutterreactiveble.channelhandlers.BleStatusHandler
 import com.signify.hue.flutterreactiveble.channelhandlers.CharNotificationHandler
@@ -11,6 +14,7 @@ import com.signify.hue.flutterreactiveble.converters.UuidConverter
 import com.signify.hue.flutterreactiveble.model.ClearGattCacheErrorType
 import com.signify.hue.flutterreactiveble.utils.discard
 import com.signify.hue.flutterreactiveble.utils.toConnectionPriority
+import com.signify.hue.flutterreactiveble.EventForwarder
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -18,6 +22,8 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.util.UUID
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 import com.signify.hue.flutterreactiveble.ProtobufModel as pb
 
 @Suppress("TooManyFunctions")
@@ -40,20 +46,27 @@ class PluginController {
             "discoverServices" to this::discoverServices,
             "getDiscoveredServices" to this::discoverServices,
             "readRssi" to this::readRssi,
-        )
+            "_startEventLoop" to this::prepareReadEvents,
+            "_readEvents" to this::readEvents,
+            "_onListen" to this::onListen,
+            "_onCancel" to this::onCancel,
+            "getOsApiVersion" to this::getOsApiVersion,
+    )
 
     private lateinit var bleClient: com.signify.hue.flutterreactiveble.ble.BleClient
-
-    private lateinit var scanchannel: EventChannel
-    private lateinit var deviceConnectionChannel: EventChannel
-    private lateinit var charNotificationChannel: EventChannel
 
     private lateinit var scanDevicesHandler: ScanDevicesHandler
     private lateinit var deviceConnectionHandler: DeviceConnectionHandler
     private lateinit var charNotificationHandler: CharNotificationHandler
+    private lateinit var bleStatusHandler: BleStatusHandler
 
     private val uuidConverter = UuidConverter()
     private val protoConverter = ProtobufMessageConverter()
+
+    private val eventQueue = ArrayList<EventTypeAndContents>()
+    private val mainLooper = Handler(Looper.getMainLooper())
+    private val eventQueueLock = ReentrantLock()
+    private var pendingResult: Result? = null
 
     internal fun initialize(
         messenger: BinaryMessenger,
@@ -61,25 +74,17 @@ class PluginController {
     ) {
         bleClient = com.signify.hue.flutterreactiveble.ble.ReactiveBleClient(context)
 
-        scanchannel = EventChannel(messenger, "flutter_reactive_ble_scan")
-        deviceConnectionChannel = EventChannel(messenger, "flutter_reactive_ble_connected_device")
-        charNotificationChannel = EventChannel(messenger, "flutter_reactive_ble_char_update")
-        val bleStatusChannel = EventChannel(messenger, "flutter_reactive_ble_status")
-
         scanDevicesHandler = ScanDevicesHandler(bleClient)
         deviceConnectionHandler = DeviceConnectionHandler(bleClient)
         charNotificationHandler = CharNotificationHandler(bleClient)
-        val bleStatusHandler = BleStatusHandler(bleClient)
-
-        scanchannel.setStreamHandler(scanDevicesHandler)
-        deviceConnectionChannel.setStreamHandler(deviceConnectionHandler)
-        charNotificationChannel.setStreamHandler(charNotificationHandler)
-        bleStatusChannel.setStreamHandler(bleStatusHandler)
+        bleStatusHandler = BleStatusHandler(bleClient)
     }
 
     internal fun deinitialize() {
         scanDevicesHandler.stopDeviceScan()
         deviceConnectionHandler.disconnectAll()
+        pendingResult = null;
+        pendingEnableResult = null;
     }
 
     internal fun execute(
@@ -387,5 +392,103 @@ class PluginController {
                 result.error("read_rssi_error", error.message, null)
             })
             .discard()
+    }
+
+    private fun prepareReadEvents(call: MethodCall, result: Result) {
+        eventQueueLock.lock();
+        try {
+            pendingResult = null
+            result.success(true)
+        } finally {
+            eventQueueLock.unlock()
+        }
+    }
+
+    private fun readEvents(call: MethodCall, result: Result) {
+        eventQueueLock.lock();
+        try {
+            // TODO: how to listen for hot restart?
+            assert(pendingResult == null)
+            if (eventQueue.isNotEmpty()) {
+                val merged = mergePendingEvents();
+                result.success(merged)
+            } else {
+                assert(pendingResult == null)
+                pendingResult = result
+            }
+        } finally {
+            eventQueueLock.unlock()
+        }
+    }
+
+    private fun onListen(call: MethodCall, result: Result) {
+        when (val channelId = call.arguments as Int) {
+            1 -> deviceConnectionHandler.onListen(null, EventForwarder(1, this))
+            2 -> charNotificationHandler.onListen(null, EventForwarder(2, this))
+            3 -> scanDevicesHandler.onListen(call, EventForwarder(3, this))
+            4 -> bleStatusHandler.onListen(null, EventForwarder(4, this))
+            else -> throw IllegalArgumentException("Unknown channel ID: $channelId")
+        }
+        result.success(true);
+    }
+
+    private fun onCancel(call: MethodCall, result: Result) {
+        when (val channelId = call.arguments as Int) {
+            1 -> deviceConnectionHandler.onCancel(null)
+            2 -> charNotificationHandler.onCancel(null)
+            3 -> scanDevicesHandler.onCancel(null)
+            4 -> bleStatusHandler.onCancel(null)
+            else -> throw IllegalArgumentException("Unknown channel ID: $channelId")
+        }
+        result.success(true);
+    }
+
+    private fun getOsApiVersion(call: MethodCall, result: Result) {
+        val osVersion = android.os.Build.VERSION.SDK_INT
+        result.success(osVersion)
+    }
+
+    public fun forwardEvent(channelId: Int, data: ByteArray) {
+        eventQueueLock.lock()
+        try {
+            eventQueue.add(EventTypeAndContents(channelId, data))
+            // Check if we have a pending Result, that is, the Flutter side is waiting for an event
+            val result = pendingResult;
+            pendingResult = null;
+            if (result != null) {
+                val merged = mergePendingEvents()
+                mainLooper.post {
+                    result.success(merged)
+                }
+            } else {
+                // There is no Result that we can use, meaning the Flutter side is processing
+                // the last batch of events. Just put the event in the queue and eventually a
+                // request will be made to read the events.
+            }
+        } finally {
+            eventQueueLock.unlock()
+        }
+    }
+
+    private fun mergePendingEvents() : ByteArray {
+        // Merge all events into a single byte array
+        val mergedLength = eventQueue.sumOf { it.data.size + 4 }
+        val merged = ByteArray(mergedLength)
+        var offset = 0
+        for (item in eventQueue) {
+            val eventCode = item.channelId
+            val eventLength = item.data.size
+            merged[offset++] = (eventCode shr 8).toByte()
+            merged[offset++] = (eventCode shr 0).toByte()
+            merged[offset++] = (eventLength shr 8).toByte()
+            merged[offset++] = (eventLength shr 0).toByte()
+            System.arraycopy(item.data, 0, merged, offset, item.data.size)
+            offset += item.data.size
+        }
+        eventQueue.clear()
+        return merged
+    }
+
+    class EventTypeAndContents(public val channelId: Int, public val data: ByteArray) {
     }
 }

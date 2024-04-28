@@ -190,6 +190,10 @@ abstract class ReactiveBlePlatform extends PlatformInterface {
     throw UnimplementedError(
         'requestConnectionPriority has not been implemented.');
   }
+
+  Future<int> get osApiVersion {
+    throw UnimplementedError('osApiVersion has not been implemented.');
+  }
 }
 
 class _PlaceholderImplementation extends ReactiveBlePlatform {}
