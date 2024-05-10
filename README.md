@@ -1,8 +1,12 @@
-# Flutter reactive BLE library
+# Flutter reactive BLE library (background isolate version)
 
 [![flutter_reactive_ble version](https://img.shields.io/pub/v/flutter_reactive_ble?label=flutter_reactive_ble)](https://pub.dev/packages/flutter_reactive_ble)
 
 Flutter library that handles BLE operations for multiple devices.
+
+## Modifications with respect to upstream repository
+
+Replaced the event channels with a polling mechanism to side-step inability to use event channels from a background isolate. This modification is Android-only.
 
 ## Contributing
 Feel free to open an new issue or a pull request to make this project better
