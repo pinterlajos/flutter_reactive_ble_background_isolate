@@ -229,6 +229,15 @@ class FlutterReactiveBle {
     return _connectedDeviceOperator.requestConnectionPriority(deviceId, priority);
   }
 
+  /// Requests to use a specified physical layer on the connected device.
+  ///
+  /// Always completes with an error on iOS, as there is no way (and no need) to perform this operation on iOS.
+  Future<PhyPair> setPreferredPhy({required String deviceId, Phy? tx, Phy? rx}) async {
+    await initialize();
+
+    return _connectedDeviceOperator.setPreferredPhy(deviceId, tx, rx);
+  }
+
   /// Scan for BLE peripherals advertising the services specified in [withServices]
   /// or for all BLE peripherals, if no services is specified. It is recommended to always specify some services.
   ///

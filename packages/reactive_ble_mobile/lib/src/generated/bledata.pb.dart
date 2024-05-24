@@ -1175,6 +1175,173 @@ class ChangeConnectionPriorityInfo extends $pb.GeneratedMessage {
   GenericFailure ensureFailure() => $_ensure(1);
 }
 
+class SetPreferredPhyRequest extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetPreferredPhyRequest', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deviceId', protoName: 'deviceId')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'txPhy', $pb.PbFieldType.O3)
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rxPhy', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  SetPreferredPhyRequest._() : super();
+  factory SetPreferredPhyRequest({
+    $core.String? deviceId,
+    $core.int? txPhy,
+    $core.int? rxPhy,
+  }) {
+    final _result = create();
+    if (deviceId != null) {
+      _result.deviceId = deviceId;
+    }
+    if (txPhy != null) {
+      _result.txPhy = txPhy;
+    }
+    if (rxPhy != null) {
+      _result.rxPhy = rxPhy;
+    }
+    return _result;
+  }
+  factory SetPreferredPhyRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetPreferredPhyRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetPreferredPhyRequest clone() => SetPreferredPhyRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetPreferredPhyRequest copyWith(void Function(SetPreferredPhyRequest) updates) => super.copyWith((message) => updates(message as SetPreferredPhyRequest)) as SetPreferredPhyRequest;
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetPreferredPhyRequest create() => SetPreferredPhyRequest._();
+  SetPreferredPhyRequest createEmptyInstance() => create();
+  static $pb.PbList<SetPreferredPhyRequest> createRepeated() => $pb.PbList<SetPreferredPhyRequest>();
+  @$core.pragma('dart2js:noInline')
+  static SetPreferredPhyRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetPreferredPhyRequest>(create);
+  static SetPreferredPhyRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get deviceId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set deviceId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDeviceId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDeviceId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get txPhy => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set txPhy($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTxPhy() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTxPhy() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get rxPhy => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set rxPhy($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRxPhy() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRxPhy() => clearField(3);
+}
+
+class SetPreferredPhyInfo extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'SetPreferredPhyInfo', createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deviceId', protoName: 'deviceId')
+    ..a<$core.int>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'txPhy', $pb.PbFieldType.O3, protoName: 'txPhy')
+    ..a<$core.int>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'rxPhy', $pb.PbFieldType.O3, protoName: 'rxPhy')
+    ..aOM<GenericFailure>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'failure', subBuilder: GenericFailure.create)
+    ..hasRequiredFields = false
+  ;
+
+  SetPreferredPhyInfo._() : super();
+  factory SetPreferredPhyInfo({
+    $core.String? deviceId,
+    $core.int? txPhy,
+    $core.int? rxPhy,
+    GenericFailure? failure,
+  }) {
+    final _result = create();
+    if (deviceId != null) {
+      _result.deviceId = deviceId;
+    }
+    if (txPhy != null) {
+      _result.txPhy = txPhy;
+    }
+    if (rxPhy != null) {
+      _result.rxPhy = rxPhy;
+    }
+    if (failure != null) {
+      _result.failure = failure;
+    }
+    return _result;
+  }
+  factory SetPreferredPhyInfo.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory SetPreferredPhyInfo.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  SetPreferredPhyInfo clone() => SetPreferredPhyInfo()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  SetPreferredPhyInfo copyWith(void Function(SetPreferredPhyInfo) updates) => super.copyWith((message) => updates(message as SetPreferredPhyInfo)) as SetPreferredPhyInfo; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static SetPreferredPhyInfo create() => SetPreferredPhyInfo._();
+  SetPreferredPhyInfo createEmptyInstance() => create();
+  static $pb.PbList<SetPreferredPhyInfo> createRepeated() => $pb.PbList<SetPreferredPhyInfo>();
+  @$core.pragma('dart2js:noInline')
+  static SetPreferredPhyInfo getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SetPreferredPhyInfo>(create);
+  static SetPreferredPhyInfo? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get deviceId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set deviceId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasDeviceId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDeviceId() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get txPhy => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set txPhy($core.int v) { $_setSignedInt32(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTxPhy() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTxPhy() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get rxPhy => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set rxPhy($core.int v) { $_setSignedInt32(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRxPhy() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRxPhy() => clearField(3);
+
+  @$pb.TagNumber(4)
+  GenericFailure get failure => $_getN(3);
+  @$pb.TagNumber(4)
+  set failure(GenericFailure v) { setField(4, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasFailure() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearFailure() => clearField(4);
+  @$pb.TagNumber(4)
+  GenericFailure ensureFailure() => $_ensure(3);
+}
+
 class CharacteristicAddress extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'CharacteristicAddress', createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'deviceId', protoName: 'deviceId')

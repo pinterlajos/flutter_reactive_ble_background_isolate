@@ -222,6 +222,31 @@ const CharacteristicAddress$json = const {
   ],
 };
 
+/// Descriptor for `SetPreferredPhyRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setPreferredPhyRequestDescriptor = $convert.base64Decode('ChZTZXRQcmVmZXJyZWRQaHlSZXF1ZXN0EhoKCGRldmljZUlkGAEgASgJUghkZXZpY2VJZBIUCgV0eFBoeRgCIAEoBVIFdHhQaHkSFAoFcnhQaHkYAyABKAVSBXJ4UGh5');
+@$core.Deprecated('Use setPreferredPhyRequestDescriptor instead')
+const SetPreferredPhyRequest$json = const {
+  '1': 'SetPreferredPhyRequest',
+  '2': const [
+    const {'1': 'deviceId', '3': 1, '4': 1, '5': 9, '10': 'deviceId'},
+    const {'1': 'txPhy', '3': 2, '4': 1, '5': 5, '10': 'txPhy'},
+    const {'1': 'rxPhy', '3': 3, '4': 1, '5': 5, '10': 'rxPhy'},
+  ],
+};
+
+/// Descriptor for `SetPreferredPhyInfo`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setPreferredPhyInfoDescriptor = $convert.base64Decode('ChNTZXRQcmVmZXJyZWRQaHlJbmZvEhoKCGRldmljZUlkGAEgASgJUghkZXZpY2VJZBIUCgV0eFBoeRgCIAEoBVIFdHhQaHkSFAoFcnhQaHkYAyABKAVSBXJ4UGh5EikKB2ZhaWx1cmUYBCABKAsyDy5HZW5lcmljRmFpbHVyZVIHZmFpbHVyZQ==');
+@$core.Deprecated('Use setPreferredPhyInfoDescriptor instead')
+const SetPreferredPhyInfo$json = const {
+  '1': 'SetPreferredPhyInfo',
+  '2': const [
+    const {'1': 'deviceId', '3': 1, '4': 1, '5': 9, '10': 'deviceId'},
+    const {'1': 'txPhy', '3': 2, '4': 1, '5': 5, '10': 'txPhy'},
+    const {'1': 'rxPhy', '3': 3, '4': 1, '5': 5, '10': 'rxPhy'},
+    const {'1': 'failure', '3': 2, '4': 1, '5': 11, '6': '.GenericFailure', '10': 'failure'},
+  ],
+};
+
 /// Descriptor for `CharacteristicAddress`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List characteristicAddressDescriptor = $convert.base64Decode('ChVDaGFyYWN0ZXJpc3RpY0FkZHJlc3MSGgoIZGV2aWNlSWQYASABKAlSCGRldmljZUlkEicKC3NlcnZpY2VVdWlkGAIgASgLMgUuVXVpZFILc2VydmljZVV1aWQSNQoSY2hhcmFjdGVyaXN0aWNVdWlkGAMgASgLMgUuVXVpZFISY2hhcmFjdGVyaXN0aWNVdWlkEiwKEXNlcnZpY2VJbnN0YW5jZUlkGAQgASgJUhFzZXJ2aWNlSW5zdGFuY2VJZBI6ChhjaGFyYWN0ZXJpc3RpY0luc3RhbmNlSWQYBSABKAlSGGNoYXJhY3RlcmlzdGljSW5zdGFuY2VJZA==');
 @$core.Deprecated('Use serviceDataEntryDescriptor instead')

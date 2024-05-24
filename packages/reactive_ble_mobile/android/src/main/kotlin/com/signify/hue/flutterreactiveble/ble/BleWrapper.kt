@@ -1,6 +1,7 @@
 package com.signify.hue.flutterreactiveble.ble
 
 import com.polidea.rxandroidble2.RxBleConnection
+import com.polidea.rxandroidble2.RxBlePhy
 import java.util.UUID
 
 data class ScanInfo(
@@ -70,6 +71,12 @@ sealed class RequestConnectionPriorityResult
 data class RequestConnectionPrioritySuccess(val deviceId: String) : RequestConnectionPriorityResult()
 
 data class RequestConnectionPriorityFailed(val deviceId: String, val errorMessage: String) : RequestConnectionPriorityResult()
+
+sealed class SetPreferredPhyResult
+
+data class SetPreferredPhySuccess(val deviceId: String, val txPhy: RxBlePhy, val rxPhy: RxBlePhy) : SetPreferredPhyResult()
+
+data class SetPreferredPhyFailed(val deviceId: String, val errorMessage: String) : SetPreferredPhyResult()
 
 enum class BleStatus(val code: Int) {
     UNKNOWN(code = 0),

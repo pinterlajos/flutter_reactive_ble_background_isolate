@@ -96,6 +96,19 @@ message ChangeConnectionPriorityInfo {
     GenericFailure failure = 2;
 }
 
+message SetPreferredPhyRequest {
+    string deviceId = 1;
+    int32 txPhy = 2;
+    int32 rxPhy = 3;
+}
+
+message SetPreferredPhyInfo {
+    string deviceId = 1;
+    int32 txPhy = 2;
+    int32 rxPhy = 3;
+    GenericFailure failure = 4;
+}
+
 message CharacteristicAddress {
     string deviceId = 1;
     Uuid serviceUuid = 2;

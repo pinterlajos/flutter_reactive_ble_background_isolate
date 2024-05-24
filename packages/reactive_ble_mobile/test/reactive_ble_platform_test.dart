@@ -450,6 +450,48 @@ void main() {
       });
     });
 
+    group('Set preferred PHY', () {
+      const deviceId = '123';
+      Phy tx, rx;
+      late pb.SetPreferredPhyRequest request;
+      late SetPreferredPhyInfo info;
+      late SetPreferredPhyInfo result;
+
+      setUp(() async {
+        request = pb.SetPreferredPhyRequest();
+        tx = Phy.le1M;
+        rx = Phy.le2M;
+        info = const SetPreferredPhyInfo(result: Result.success(PhyPair(tx: Phy.le1M, rx: Phy.le2M)));
+        when(_methodChannel.invokeMethod<List<int>>(any, any)).thenAnswer(
+              (_) async => [1],
+        );
+        when(
+          _argsConverter.createSetPreferredPhyRequest(
+            deviceId,
+            rx: rx,
+            tx: tx,
+          ),
+        ).thenReturn(request);
+
+        when(_protobufConverter.setPreferredPhyInfoFrom([1]))
+            .thenReturn(info);
+        result = await _sut.setPreferredPhy(deviceId, tx: tx, rx: rx);
+      });
+
+      test('It returns correct value', () async {
+        expect(result, info);
+      });
+
+      test('It invokes method channel with correct arguments', () {
+        verify(
+          _methodChannel.invokeMethod<List<int>>(
+            'setPreferredPhy',
+            request.writeToBuffer(),
+          ),
+        ).called(1);
+      });
+    });
+
     group('Scan for devices', () {
       const scanMode = ScanMode.balanced;
       const locationEnabled = true;

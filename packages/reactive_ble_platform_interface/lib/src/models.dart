@@ -9,6 +9,7 @@ export './model/discovered_device.dart';
 export './model/discovered_service.dart';
 export './model/generic_failure.dart';
 export './model/log_level.dart';
+export './model/physical_layer.dart';
 export './model/qualified_characteristic.dart';
 export './model/result.dart';
 export './model/scan_mode.dart';

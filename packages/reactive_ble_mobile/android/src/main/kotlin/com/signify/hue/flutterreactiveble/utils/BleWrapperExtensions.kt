@@ -8,6 +8,10 @@ import com.polidea.rxandroidble2.RxBleClient.State.LOCATION_SERVICES_NOT_ENABLED
 import com.polidea.rxandroidble2.RxBleClient.State.READY
 import com.signify.hue.flutterreactiveble.ble.BleStatus
 import com.signify.hue.flutterreactiveble.ble.ConnectionPriority
+import com.polidea.rxandroidble2.RxBlePhy
+import com.polidea.rxandroidble2.RxBlePhy.PHY_1M
+import com.polidea.rxandroidble2.RxBlePhy.PHY_2M
+import com.polidea.rxandroidble2.RxBlePhy.PHY_CODED
 
 fun RxBleClient.State.toBleState(): BleStatus =
     when (this) {
@@ -24,4 +28,12 @@ fun Int.toConnectionPriority() =
         1 -> ConnectionPriority.HIGH_PERFORMACE
         2 -> ConnectionPriority.LOW_POWER
         else -> ConnectionPriority.BALANCED
+    }
+
+fun Int.toPhyMask(): Set<RxBlePhy> =
+    when (this) {
+        1 -> setOf(PHY_1M)
+        2 -> setOf(PHY_2M)
+        3 -> setOf(PHY_CODED)
+        else -> setOf()
     }

@@ -198,6 +198,10 @@ abstract class ReactiveBlePlatform extends PlatformInterface {
   Future<int> get osApiVersion {
     throw UnimplementedError('osApiVersion has not been implemented.');
   }
+
+  Future<SetPreferredPhyInfo> setPreferredPhy(String deviceId, {Phy? tx, Phy? rx}) {
+    throw UnimplementedError('setPreferredPhy has not been implemented.');
+  }
 }
 
 class _PlaceholderImplementation extends ReactiveBlePlatform {}

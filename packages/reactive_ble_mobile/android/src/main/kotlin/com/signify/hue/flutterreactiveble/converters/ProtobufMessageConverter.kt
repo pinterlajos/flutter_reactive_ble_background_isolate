@@ -11,6 +11,9 @@ import com.signify.hue.flutterreactiveble.ble.MtuNegotiateSuccessful
 import com.signify.hue.flutterreactiveble.ble.RequestConnectionPriorityFailed
 import com.signify.hue.flutterreactiveble.ble.RequestConnectionPriorityResult
 import com.signify.hue.flutterreactiveble.ble.RequestConnectionPrioritySuccess
+import com.signify.hue.flutterreactiveble.ble.SetPreferredPhyResult
+import com.signify.hue.flutterreactiveble.ble.SetPreferredPhySuccess
+import com.signify.hue.flutterreactiveble.ble.SetPreferredPhyFailed
 import com.signify.hue.flutterreactiveble.ble.ScanInfo
 import com.signify.hue.flutterreactiveble.model.CharacteristicErrorType
 import com.signify.hue.flutterreactiveble.model.ClearGattCacheErrorType
@@ -169,6 +172,29 @@ class ProtobufMessageConverter {
                         .build()
 
                 pb.ChangeConnectionPriorityInfo.newBuilder()
+                    .setDeviceId(result.deviceId)
+                    .setFailure(failure)
+                    .build()
+            }
+        }
+    }
+
+    fun convertSetPreferredPhyResult(result: SetPreferredPhyResult): pb.SetPreferredPhyInfo {
+        return when (result) {
+            is SetPreferredPhySuccess ->
+                pb.SetPreferredPhyInfo.newBuilder()
+                    .setDeviceId(result.deviceId)
+                    .setTxPhy(result.txPhy.value)
+                    .setRxPhy(result.rxPhy.value)
+                    .build()
+            is SetPreferredPhyFailed -> {
+                val failure =
+                    pb.GenericFailure.newBuilder()
+                        .setCode(0)
+                        .setMessage(result.errorMessage)
+                        .build()
+
+                pb.SetPreferredPhyInfo.newBuilder()
                     .setDeviceId(result.deviceId)
                     .setFailure(failure)
                     .build()

@@ -17,6 +17,7 @@ import com.signify.hue.flutterreactiveble.converters.UuidConverter
 import com.signify.hue.flutterreactiveble.model.ClearGattCacheErrorType
 import com.signify.hue.flutterreactiveble.utils.discard
 import com.signify.hue.flutterreactiveble.utils.toConnectionPriority
+import com.signify.hue.flutterreactiveble.utils.toPhyMask
 import com.signify.hue.flutterreactiveble.EventForwarder
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
@@ -51,6 +52,7 @@ class PluginController : ActivityResultListener {
             "getDiscoveredServices" to this::discoverServices,
             "readRssi" to this::readRssi,
             "requestEnableBluetooth" to this::requestEnableBluetooth,
+            "setPreferredPhy" to this::setPreferredPhy,
             "_startEventLoop" to this::prepareReadEvents,
             "_readEvents" to this::readEvents,
             "_onListen" to this::onListen,
@@ -400,6 +402,23 @@ class PluginController : ActivityResultListener {
                 result.success(info.toByteArray())
             }, { error ->
                 result.error("read_rssi_error", error.message, null)
+            })
+            .discard()
+    }
+
+    private fun setPreferredPhy(
+        call: MethodCall,
+        result: Result,
+    ) {
+        val args = pb.SetPreferredPhyRequest.parseFrom(call.arguments as ByteArray)
+
+        bleClient.setPreferredPhy(args.deviceId, args.txPhy.toPhyMask(), args.rxPhy.toPhyMask())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ setPhyResult ->
+                val info = protoConverter.convertSetPreferredPhyResult(setPhyResult)
+                result.success(info.toByteArray())
+            }, { error ->
+                result.error("set_preferred_phy_error", error.message, null)
             })
             .discard()
     }

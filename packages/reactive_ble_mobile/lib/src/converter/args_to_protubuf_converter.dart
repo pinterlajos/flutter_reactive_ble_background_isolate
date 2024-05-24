@@ -38,6 +38,12 @@ abstract class ArgsToProtobufConverter {
     ConnectionPriority priority,
   );
 
+  pb.SetPreferredPhyRequest createSetPreferredPhyRequest(
+      String deviceId, {
+      Phy? rx,
+      Phy? tx,
+  });
+
   pb.ScanForDevicesRequest createScanForDevicesRequest({
     required List<Uuid>? withServices,
     required ScanMode scanMode,
@@ -175,6 +181,18 @@ class ArgsToProtobufConverterImpl implements ArgsToProtobufConverter {
       ..deviceId = deviceId
       ..priority = convertPriorityToInt(priority);
 
+    return args;
+  }
+
+  @override
+  pb.SetPreferredPhyRequest createSetPreferredPhyRequest(
+      String deviceId, {
+      Phy? rx,
+      Phy? tx}) {
+    final args = pb.SetPreferredPhyRequest()
+      ..deviceId = deviceId
+      ..rxPhy = (rx != null) ? convertPhyToInt(rx) : 0
+      ..txPhy = (tx != null) ? convertPhyToInt(tx) : 0;
     return args;
   }
 

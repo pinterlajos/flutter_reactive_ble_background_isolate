@@ -21,6 +21,8 @@ abstract class ProtobufConverter {
 
   ConnectionPriorityInfo connectionPriorityInfoFrom(List<int> data);
 
+  SetPreferredPhyInfo setPreferredPhyInfoFrom(List<int> data);
+
   int mtuSizeFrom(List<int> data) =>
       pb.NegotiateMtuInfo.fromBuffer(data).mtuSize;
 
@@ -162,6 +164,33 @@ class ProtobufConverterImpl implements ProtobufConverter {
   }
 
   @override
+  SetPreferredPhyInfo setPreferredPhyInfoFrom(List<int> data) {
+    final message = pb.SetPreferredPhyInfo.fromBuffer(data);
+    return SetPreferredPhyInfo(
+      result: resultFrom(
+        getValue: () => PhyPair(
+            tx: selectFrom(
+              Phy.values,
+              index: message.txPhy,
+              fallback: (int? raw) => throw _InvalidPhy(raw),
+            ),
+            rx: selectFrom(
+              Phy.values,
+              index: message.rxPhy,
+              fallback: (int? raw) => throw _InvalidPhy(raw),
+            ),
+        ),
+        failure: genericFailureFrom(
+          hasFailure: message.hasFailure(),
+          getFailure: () => message.failure,
+          codes: SetPreferredPhyFailure.values,
+          fallback: (rawOrNull) => SetPreferredPhyFailure.unknown,
+        ),
+      ),
+    );
+  }
+
+  @override
   int mtuSizeFrom(List<int> data) =>
       pb.NegotiateMtuInfo.fromBuffer(data).mtuSize;
 
@@ -257,4 +286,13 @@ class _InvalidConnectionState extends Error {
 
   @override
   String toString() => "Invalid $DeviceConnectionState value $rawValue";
+}
+
+class _InvalidPhy extends Error {
+  final int? rawValue;
+
+  _InvalidPhy(this.rawValue);
+
+  @override
+  String toString() => "Invalid $Phy value $rawValue";
 }

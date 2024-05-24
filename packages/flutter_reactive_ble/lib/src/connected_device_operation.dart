@@ -30,6 +30,9 @@ abstract class ConnectedDeviceOperation {
 
   Future<void> requestConnectionPriority(
       String deviceId, ConnectionPriority priority);
+
+  Future<PhyPair> setPreferredPhy(
+      String deviceId, Phy? tx, Phy? rx);
 }
 
 class ConnectedDeviceOperationImpl implements ConnectedDeviceOperation {
@@ -116,6 +119,14 @@ class ConnectedDeviceOperationImpl implements ConnectedDeviceOperation {
       _blePlatform
           .requestConnectionPriority(deviceId, priority)
           .then((message) => message.result.dematerialize());
+
+  @override
+  Future<PhyPair> setPreferredPhy(
+      String deviceId, Phy? tx, Phy? rx) async =>
+      _blePlatform
+          .setPreferredPhy(deviceId, tx: tx, rx: rx)
+          .then((message) => message.result.dematerialize());
+
 }
 
 @visibleForTesting

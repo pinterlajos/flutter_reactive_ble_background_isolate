@@ -328,6 +328,16 @@ class ReactiveBleMobilePlatform extends ReactiveBlePlatform {
   Future<int> get osApiVersion => _bleMethodChannel
       .invokeMethod<int>('getOsApiVersion')
       .then((value) => value!);
+
+  @override
+  Future<SetPreferredPhyInfo> setPreferredPhy(String deviceId, {
+    Phy? tx,
+    Phy? rx
+  }) => _bleMethodChannel
+      .invokeMethod('setPreferredPhy', _argsToProtobufConverter
+          .createSetPreferredPhyRequest(deviceId, tx: tx, rx: rx)
+          .writeToBuffer())
+      .then((data) => _protobufConverter.setPreferredPhyInfoFrom(data!));
 }
 
 class ReactiveBleMobilePlatformFactory {

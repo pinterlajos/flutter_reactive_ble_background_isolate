@@ -402,6 +402,49 @@ void main() {
           });
         });
       });
+
+      group('Change preferred PHY', () {
+        const deviceId = '123';
+        late Phy tx, rx;
+
+        setUp(() {
+          tx = rx = Phy.le2M;
+        });
+
+        group('Given request priority succeeds', () {
+          setUp(() {
+            when(_blePlatform.setPreferredPhy(deviceId, tx: tx, rx: rx))
+                .thenAnswer((_) async => const SetPreferredPhyInfo(
+              result: Result.success(PhyPair(tx: Phy.le2M, rx: Phy.le2M)),
+            ));
+          });
+
+          test('It succeeds without an error', () async {
+            await _sut.setPreferredPhy(deviceId, tx, rx);
+
+            expect(true, true);
+          });
+        });
+
+        group('Given request priority fails', () {
+          setUp(() async {
+            when(_blePlatform.setPreferredPhy(deviceId, tx: tx, rx: rx))
+                .thenAnswer((_) async => const SetPreferredPhyInfo(
+              result: Result.failure(
+                GenericFailure<SetPreferredPhyFailure>(
+                    code: SetPreferredPhyFailure.unknown,
+                    message: 'whoops'),
+              ),
+            ));
+          });
+
+          test('It throws failure', () async {
+            expect(
+                    () async => _sut.setPreferredPhy(deviceId, tx, rx),
+                throwsException);
+          });
+        });
+      });
     });
   });
 }

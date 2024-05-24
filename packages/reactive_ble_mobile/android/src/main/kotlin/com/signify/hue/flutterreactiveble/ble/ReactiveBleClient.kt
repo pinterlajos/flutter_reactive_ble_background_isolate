@@ -13,6 +13,8 @@ import com.polidea.rxandroidble2.RxBleClient
 import com.polidea.rxandroidble2.RxBleConnection
 import com.polidea.rxandroidble2.RxBleDevice
 import com.polidea.rxandroidble2.RxBleDeviceServices
+import com.polidea.rxandroidble2.RxBlePhy
+import com.polidea.rxandroidble2.RxBlePhyOption
 import com.polidea.rxandroidble2.scan.IsConnectable
 import com.polidea.rxandroidble2.scan.ScanFilter
 import com.polidea.rxandroidble2.scan.ScanSettings
@@ -378,6 +380,36 @@ open class ReactiveBleClient(private val context: Context) : BleClient {
                     }
             }
         }.first(RequestConnectionPriorityFailed(deviceId, "Unknown failure"))
+
+    override fun setPreferredPhy(deviceId: String, txPhy: Set<RxBlePhy>, rxPhy: Set<RxBlePhy>): Single<SetPreferredPhyResult> =
+        getConnection(deviceId).flatMapSingle { connectionResult ->
+            when (connectionResult) {
+                is EstablishedConnection -> {
+                    // Check for API level 26
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                        Single.error(
+                            java.lang.IllegalStateException(
+                                "Setting preferred PHY failed. API level is below 26",
+                            ),
+                        )
+                    } else {
+                        connectionResult.rxConnection.setPreferredPhy(
+                            txPhy,
+                            rxPhy,
+                            RxBlePhyOption.PHY_OPTION_NO_PREFERRED
+                        ).map<SetPreferredPhyResult> {
+                            SetPreferredPhySuccess(deviceId, it.txPhy, it.rxPhy)
+                        }
+                    }
+                }
+                is EstablishConnectionFailure ->
+                    Single.error(
+                        java.lang.IllegalStateException(
+                            "Setting preferred PHY failed. Device is not connected",
+                        ),
+                    )
+            }
+        }.firstOrError()
 
     override fun readRssi(deviceId: String): Single<Int> =
         getConnection(deviceId).flatMapSingle { connectionResult ->
